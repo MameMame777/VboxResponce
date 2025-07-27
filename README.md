@@ -1,6 +1,28 @@
 # VoiceVox Copilot Notifier
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![VS Code](https://img.shields.io/badge/VS%20Code-1.70%2B-blue.svg)](https://code.visualstudio.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.7%2B-blue.svg)](https://www.typescriptlang.org/)
+
 A VS Code extension that provides voice notifications for GitHub Copilot Chat completion using VoiceVox text-to-speech engine.
+
+## 🚀 Quick Start
+
+### Installation
+
+1. **Download**: Download the latest `.vsix` file from [Releases](https://github.com/MameMame777/voicevox-copilot-notifier/releases)
+2. **Install**: In VS Code, press `Ctrl+Shift+P` → "Extensions: Install from VSIX..." → Select the downloaded file
+3. **Enjoy**: The extension will automatically notify you when Copilot Chat completes!
+
+### Alternative Installation Methods
+
+```bash
+# Command line installation
+code --install-extension voicevox-copilot-notifier-0.1.0.vsix
+
+# Or use the provided installer (Windows)
+./install.bat
+```
 
 ## Project Purpose
 

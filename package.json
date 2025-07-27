@@ -2,9 +2,16 @@
   "name": "voicevox-copilot-notifier",
   "displayName": "VoiceVox Copilot Notifier",
   "description": "Voice notifications for GitHub Copilot Chat completion using VoiceVox",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "nautilus-dev",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MameMame777/voicevox-copilot-notifier.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MameMame777/voicevox-copilot-notifier/issues"
+  },
+  "homepage": "https://github.com/MameMame777/voicevox-copilot-notifier#readme",
   "license": "MIT",
   "icon": "icon.png",
   "engines": {

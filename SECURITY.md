@@ -10,9 +10,9 @@ We provide security updates for the following versions:
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it by emailing <security@nautilus-dev.com>.
+If you discover a security vulnerability, please report it through GitHub Issues.
 
-Please do not report security vulnerabilities through public GitHub issues.
+Please create a security-related issue with detailed information about the vulnerability.
 
 ## Security Considerations
 

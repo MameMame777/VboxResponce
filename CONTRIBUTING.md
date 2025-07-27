@@ -1,43 +1,92 @@
 # Contributing to VoiceVox Copilot Notifier
 
-Thank you for your interest in contributing! This document provides guidelines for contributing to the project.
+We welcome contributions to the VoiceVox Copilot Notifier project!
 
-## Development Setup
+## 🚀 Getting Started
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Open in VS Code
-4. Press F5 to run the extension in debug mode
+### Prerequisites
 
-## Code Structure
+- Node.js 16.x or higher
+- VS Code 1.70.0 or higher
+- Git
 
-- `src/audioManager.ts` - Audio playback and caching system
-- `src/copilotMonitor.ts` - Copilot activity detection
-- `src/configurationManager.ts` - VS Code settings management
-- `src/statusBarManager.ts` - Status bar integration
-- `src/extension.ts` - Main extension entry point
+### Development Setup
 
-## Adding New Voice Characters
+1. **Clone the repository**
 
-1. Generate audio files using `npm run generate-assets`
-2. Add character to `package.json` configuration
-3. Update character descriptions in README
+   ```bash
+   git clone https://github.com/MameMame777/voicevox-copilot-notifier.git
+   cd voicevox-copilot-notifier
+   ```
 
-## Testing
+2. **Install dependencies**
 
-Run tests with: `npm test`
+   ```bash
+   npm install
+   ```
 
-## Submitting Changes
+3. **Open in VS Code**
+
+   ```bash
+   code .
+   ```
+
+4. **Start development**
+   - Press `F5` to open a new Extension Development Host window
+   - Your extension is now running in debug mode
+
+## 🔧 Development
+
+### Building
+
+```bash
+npm run compile
+```
+
+### Packaging
+
+```bash
+# Install VSCE if not already installed
+npm install -g vsce
+
+# Package the extension
+vsce package --allow-missing-repository --out build/
+```
+
+### Project Structure
+
+- `src/` - TypeScript source code
+- `assets/` - Audio files for voice notifications
+- `out/` - Compiled JavaScript files
+- `build/` - Generated .vsix packages
+- `dist/` - Distribution files for end users
+
+## 🎯 How to Contribute
+
+### Reporting Issues
+
+- Check existing issues first
+- Use the issue templates when available
+- Provide detailed reproduction steps
+- Include VS Code version and extension version
+
+### Submitting Changes
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Run tests: `npm test`
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
-## Code Style
+### Code Style
 
-- Use TypeScript
-- Follow existing code patterns
-- Add comments for complex logic
-- Use descriptive variable names
+- Use TypeScript for all source code
+- Follow existing code patterns and conventions
+- Add JSDoc comments for public APIs
+- Use descriptive variable and function names
+
+## 📝 License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.

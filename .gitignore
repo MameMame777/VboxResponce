@@ -20,3 +20,17 @@ Thumbs.db
 
 # Log files
 *.log
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+*.lcov
