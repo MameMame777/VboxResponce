@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
                     
                     await audioManager.playCompletionSound(NotificationType.TASK_COMPLETE);
                     vscode.window.showInformationMessage(
-                        `Test sound played successfully (${config.voiceCharacter})`
+                        'Test sound played successfully'
                     );
                 } catch (error) {
                     console.error('Test sound error:', error);
