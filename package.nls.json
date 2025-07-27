@@ -1,0 +1,19 @@
+{
+  "extension.name": "VoiceVox Copilot Notifier",
+  "extension.description": "Voice notifications for GitHub Copilot Chat completion using VoiceVox",
+  "commands.toggle.title": "Toggle Voice Notifications",
+  "commands.playTest.title": "Play Test Sound", 
+  "commands.playLastMessage.title": "Replay Last Notification",
+  "config.enabled.description": "Enable voice notifications for Copilot Chat completion",
+  "config.voiceCharacter.description": "Voice character for notifications",
+  "config.volume.description": "Audio volume (0.0 - 1.0)",
+  "config.notificationDelay.description": "Delay before playing notification (milliseconds)",
+  "config.enableForErrors.description": "Play different sound for error completions",
+  "config.randomTaskComplete.description": "Use random voice characters for task completion notifications",
+  "messages.activated": "VoiceVox Copilot Notifier activated!",
+  "messages.enabled": "VoiceVox notifications enabled",
+  "messages.disabled": "VoiceVox notifications disabled",
+  "messages.testSuccess": "Test sound played successfully",
+  "messages.testFailed": "Failed to play test sound",
+  "messages.settingsUpdated": "VoiceVox settings updated"
+}

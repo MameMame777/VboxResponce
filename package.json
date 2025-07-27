@@ -1,0 +1,125 @@
+{
+  "name": "voicevox-copilot-notifier",
+  "displayName": "VoiceVox Copilot Notifier",
+  "description": "Voice notifications for GitHub Copilot Chat completion using VoiceVox",
+  "version": "0.1.0",
+  "publisher": "nautilus-dev",
+  "private": true,
+  "license": "MIT",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "voicevox",
+    "copilot",
+    "tts",
+    "notification",
+    "accessibility"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "voicevox-copilot.toggle",
+        "title": "Toggle Voice Notifications",
+        "category": "VoiceVox Copilot"
+      },
+      {
+        "command": "voicevox-copilot.playTest",
+        "title": "Play Test Sound",
+        "category": "VoiceVox Copilot"
+      },
+      {
+        "command": "voicevox-copilot.playLastMessage",
+        "title": "Replay Last Notification",
+        "category": "VoiceVox Copilot"
+      }
+    ],
+    "configuration": {
+      "title": "VoiceVox Copilot Notifier",
+      "properties": {
+        "voicevox-copilot.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable voice notifications for Copilot Chat completion"
+        },
+        "voicevox-copilot.voiceCharacter": {
+          "type": "string",
+          "enum": [
+            "zundamon",
+            "metan", 
+            "tsumugi",
+            "kiritan"
+          ],
+          "enumDescriptions": [
+            "ずんだもん (Friendly)",
+            "四国めたん (Cheerful)",
+            "春日部つむぎ (Calm)",
+            "東北きりたん (Natural)"
+          ],
+          "default": "zundamon",
+          "description": "Voice character for notifications"
+        },
+        "voicevox-copilot.volume": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Audio volume (0.0 - 1.0)"
+        },
+        "voicevox-copilot.notificationDelay": {
+          "type": "number",
+          "default": 500,
+          "minimum": 0,
+          "maximum": 5000,
+          "description": "Delay before playing notification (milliseconds)"
+        },
+        "voicevox-copilot.enableForErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play different sound for error completions"
+        },
+        "voicevox-copilot.randomTaskComplete": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use random voice characters for task completion notifications"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "voicevox-copilot.toggle",
+        "key": "ctrl+alt+v",
+        "mac": "cmd+alt+v",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "generate-assets": "node scripts/generateAudioAssets.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.70.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.31.0",
+    "@typescript-eslint/parser": "^5.31.0",
+    "eslint": "^8.20.0",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}

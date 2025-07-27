@@ -1,0 +1,36 @@
+# Source files
+src/**
+.vscode/**
+node_modules/**
+out/test/**
+
+# Build and temporary files
+tsconfig.json
+.gitignore
+temp/**
+build/**
+
+# Documentation (keep only essential)
+docs/**
+*.md
+!README.md
+
+# Development files
+scripts/**
+install.bat
+*.bak
+*.txt
+
+# GitHub
+.github/**
+
+# Development and distribution folders
+dist/**
+
+# Configuration files
+package.nls.json
+PROJECT_STRUCTURE.md
+SECURITY.md
+CONTRIBUTING.md
+PRIVATE_USAGE.md
+DEVELOPMENT_JOURNAL.md
