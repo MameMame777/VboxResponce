@@ -34,14 +34,14 @@ VoiceVox Copilot Notifier v1.0.0 is now ready for public use! This VS Code exten
 
 ### From Release
 
-1. Download `voicevox-copilot-notifier-1.0.0.vsix` from GitHub Releases
+1. Download `VboxResponce-1.0.0.vsix` from GitHub Releases
 2. In VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX..."
 3. Select the downloaded `.vsix` file
 
 ### Command Line
 
 ```bash
-code --install-extension voicevox-copilot-notifier-1.0.0.vsix
+code --install-extension VboxResponce-1.0.0.vsix
 ```
 
 ## ⚙️ Configuration

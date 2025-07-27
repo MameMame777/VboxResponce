@@ -10,7 +10,7 @@ A VS Code extension that provides voice notifications for GitHub Copilot Chat co
 
 ### Installation
 
-1. **Download**: Download the latest `.vsix` file from [Releases](https://github.com/MameMame777/voicevox-copilot-notifier/releases)
+1. **Download**: Download the latest `.vsix` file from the [dist folder](https://github.com/MameMame777/VboxResponce/tree/master/dist)
 2. **Install**: In VS Code, press `Ctrl+Shift+P` → "Extensions: Install from VSIX..." → Select the downloaded file
 3. **Enjoy**: The extension will automatically notify you when Copilot Chat completes!
 
@@ -18,7 +18,7 @@ A VS Code extension that provides voice notifications for GitHub Copilot Chat co
 
 ```bash
 # Command line installation
-code --install-extension voicevox-copilot-notifier-0.1.0.vsix
+code --install-extension VboxResponce-1.0.0.vsix
 
 # Or use the provided installer (Windows)
 ./install.bat
@@ -96,20 +96,20 @@ This extension enhances the GitHub Copilot experience by providing audio feedbac
 ## Usage
 
 1. **Enable/Disable**: Click the 🔊/🔇 icon in VS Code status bar
-2. **Change Voice Character**: Go to VS Code Settings → Extensions → VoiceVox Copilot
-3. **Test Audio**: Use Command Palette → "VoiceVox Copilot: Play Test Sound"
+2. **Change Voice Character**: Go to VS Code Settings → Extensions → VboxResponce
+3. **Test Audio**: Use Command Palette → "VboxResponce: Play Test Sound"
 4. **Adjust Settings**: Configure volume, delays, and error notifications in settings
 
 ## Configuration Options
 
 ```json
 {
-  "voicevox-copilot.enabled": true,
-  "voicevox-copilot.voiceCharacter": "zundamon",
-  "voicevox-copilot.volume": 0.7,
-  "voicevox-copilot.notificationDelay": 500,
-  "voicevox-copilot.enableForErrors": true,
-  "voicevox-copilot.randomTaskComplete": true
+  "VboxResponce.enabled": true,
+  "VboxResponce.voiceCharacter": "zundamon",
+  "VboxResponce.volume": 0.7,
+  "VboxResponce.notificationDelay": 500,
+  "VboxResponce.enableForErrors": true,
+  "VboxResponce.randomTaskComplete": true
 }
 ```
 

@@ -15,8 +15,8 @@ We welcome contributions to the VoiceVox Copilot Notifier project!
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/MameMame777/voicevox-copilot-notifier.git
-   cd voicevox-copilot-notifier
+   git clone https://github.com/MameMame777/VboxResponce.git
+   cd VboxResponce
    ```
 
 2. **Install dependencies**

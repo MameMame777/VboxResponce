@@ -3,7 +3,7 @@
 ## ディレクトリ構造
 
 ```text
-voicevox-copilot-notifier/
+VboxResponce/
 ├── 📁 src/                    # TypeScriptソースコード
 │   ├── audioManager.ts        # 音声管理システム
 │   ├── copilotMonitor.ts     # Copilot活動監視
@@ -20,9 +20,9 @@ voicevox-copilot-notifier/
 │   └── task-complete_idoroid.mp3
 ├── 📁 out/                    # コンパイル済みJavaScript
 ├── 📁 build/                  # ビルド成果物
-│   └── voicevox-copilot-notifier-0.1.0.vsix
+│   └── VboxResponce-0.1.0.vsix
 ├── 📁 dist/                   # 配布パッケージ
-│   ├── voicevox-copilot-notifier-0.1.0.vsix
+│   ├── VboxResponce-0.1.0.vsix
 │   ├── install.bat
 │   └── PRIVATE_USAGE.md
 ├── 📁 docs/                   # 開発文書
