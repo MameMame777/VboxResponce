@@ -193,6 +193,14 @@ export class CopilotMonitor implements vscode.Disposable {
     private lastActivityCheck: number = 0;
     private recentEventCount: number = 0;
 
+    private isSettingsOrConfigFile(document: vscode.TextDocument): boolean {
+        return document.uri.scheme === 'vscode-userdata' || 
+               document.fileName.includes('settings.json') ||
+               document.fileName.includes('keybindings.json') ||
+               document.fileName.includes('tasks.json') ||
+               document.fileName.includes('launch.json');
+    }
+
     private setupCopilotPanelDetection(): void {
         // Moderate frequency of panel detection for balanced responsiveness
         this.retryInterval = setInterval(() => {
@@ -283,12 +291,23 @@ export class CopilotMonitor implements vscode.Disposable {
             console.log(`📝 TEXT DOCUMENT CHANGE: ${e.document.fileName}`);
             console.log(`📝 Change count: ${e.contentChanges.length}`);
             this.analyzeTextDocumentChange(e);
-            this.recentEventCount++; // Track activity for pattern detection
+            
+            // Only count as Copilot activity if it's not a settings/config file
+            if (!this.isSettingsOrConfigFile(e.document)) {
+                this.recentEventCount++; // Track activity for pattern detection
+            }
         });
         
         // **CRITICAL: Monitor document saves (often indicates Copilot completion)**
         const saveDisposable = vscode.workspace.onDidSaveTextDocument((document) => {
             console.log(`💾 DOCUMENT SAVED: ${document.fileName} - potential Copilot completion`);
+            
+            // Skip settings files and other non-code files
+            if (this.isSettingsOrConfigFile(document)) {
+                console.log(`💾 Skipping settings/config file: ${document.fileName}`);
+                return;
+            }
+            
             // Document saves often happen after Copilot insertions
             setTimeout(() => {
                 this.scheduleCompletionNotification(NotificationType.TASK_COMPLETE, 'Document saved after potential Copilot edit');
@@ -305,7 +324,11 @@ export class CopilotMonitor implements vscode.Disposable {
             if (editor) {
                 console.log(`📝 ACTIVE EDITOR CHANGED: ${editor.document.fileName}`);
                 console.log('📝 Active editor changed - potential Copilot usage context');
-                this.recentEventCount++; // Track activity
+                
+                // Only count as Copilot activity if it's not a settings/config file
+                if (!this.isSettingsOrConfigFile(editor.document)) {
+                    this.recentEventCount++; // Track activity
+                }
             }
         });
         

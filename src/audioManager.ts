@@ -6,7 +6,8 @@ import { spawn } from 'child_process';
 import { ConfigurationManager, NotificationConfig } from './configurationManager';
 
 export enum NotificationType {
-    TASK_COMPLETE = 'task-complete'
+    TASK_COMPLETE = 'task-complete',
+    EXTENSION_ACTIVATED = 'activated'
 }
 
 export class AudioManager implements vscode.Disposable {
@@ -95,8 +96,12 @@ export class AudioManager implements vscode.Disposable {
             const taskCompleteFiles = this.getAllTaskCompleteFiles(assetsPath);
             console.log(`Preloading ${taskCompleteFiles.length} task-complete files`);
             
+            // Also preload the activation sound
+            const activationFile = 'activated-zundamon.wav';
+            const allFilesToPreload = [...taskCompleteFiles, activationFile];
+            
             let loadedCount = 0;
-            for (const filename of taskCompleteFiles) {
+            for (const filename of allFilesToPreload) {
                 const audioPath = path.join(assetsPath, filename);
                 if (fs.existsSync(audioPath)) {
                     const audioData = fs.readFileSync(audioPath);
@@ -181,13 +186,19 @@ export class AudioManager implements vscode.Disposable {
             return;
         }
 
+        console.log(`🎵 playAudioFile called with type: ${type}, randomTaskComplete: ${config.randomTaskComplete}`);
+
         // For TASK_COMPLETE, use random selection if enabled
         let filename: string;
         if (type === NotificationType.TASK_COMPLETE && config.randomTaskComplete) {
             filename = this.getRandomTaskCompleteFile();
             console.log(`🎯 Using random task-complete file: ${filename}`);
+        } else if (type === NotificationType.EXTENSION_ACTIVATED) {
+            filename = 'activated-zundamon.wav';
+            console.log(`🚀 Using extension activation sound: ${filename}`);
         } else {
             filename = `${type}_${config.voiceCharacter}.wav`;
+            console.log(`🎶 Using standard format: ${filename}`);
         }
 
         const audioData = this.audioCache.get(filename);
@@ -285,13 +296,19 @@ export class AudioManager implements vscode.Disposable {
     private async playAudioFileFromDisk(type: NotificationType, config: NotificationConfig): Promise<void> {
         const assetsPath = path.join(this.extensionPath, 'assets');
         
+        console.log(`🎵 playAudioFileFromDisk called with type: ${type}, randomTaskComplete: ${config.randomTaskComplete}`);
+        
         // For TASK_COMPLETE, use random selection if enabled
         let filename: string;
         if (type === NotificationType.TASK_COMPLETE && config.randomTaskComplete) {
             filename = this.getRandomTaskCompleteFile();
             console.log(`🎯 Using random task-complete file (disk fallback): ${filename}`);
+        } else if (type === NotificationType.EXTENSION_ACTIVATED) {
+            filename = 'activated-zundamon.wav';
+            console.log(`🚀 Using extension activation sound (disk fallback): ${filename}`);
         } else {
             filename = `${type}_${config.voiceCharacter}.wav`;
+            console.log(`🎶 Using standard format (disk fallback): ${filename}`);
         }
         
         const audioPath = path.join(assetsPath, filename);
@@ -361,7 +378,8 @@ export class AudioManager implements vscode.Disposable {
     private async playAudioPlaceholder(type: NotificationType, config: NotificationConfig): Promise<void> {
         // Fallback placeholder implementation
         const phrases = {
-            [NotificationType.TASK_COMPLETE]: 'タスクが完了しました'
+            [NotificationType.TASK_COMPLETE]: 'タスクが完了しました',
+            [NotificationType.EXTENSION_ACTIVATED]: '拡張機能が起動しました'
         };
 
         const phrase = phrases[type];

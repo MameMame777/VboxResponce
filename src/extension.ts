@@ -35,9 +35,20 @@ export function activate(context: vscode.ExtensionContext) {
         Promise.all([
             audioManager.initialize(),
             copilotMonitor.initialize()
-        ]).then(() => {
+        ]).then(async () => {
             console.log('VoiceVox Copilot Notifier initialized successfully');
             statusBar.updateStatus(configManager.isEnabled());
+            
+            // Play activation sound if enabled
+            if (configManager.isEnabled()) {
+                try {
+                    console.log('🎵 About to play initial EXTENSION_ACTIVATED sound...');
+                    await audioManager.playCompletionSound(NotificationType.EXTENSION_ACTIVATED);
+                    console.log('Extension activation sound played');
+                } catch (error) {
+                    console.error('Failed to play activation sound:', error);
+                }
+            }
         }).catch(error => {
             console.error('Failed to initialize VoiceVox Copilot Notifier:', error);
             vscode.window.showErrorMessage(
@@ -49,16 +60,32 @@ export function activate(context: vscode.ExtensionContext) {
         // Register commands
         const toggleCommand = vscode.commands.registerCommand(
             'voicevox-copilot.toggle',
-            () => {
+            async () => {
                 const wasEnabled = configManager.isEnabled();
                 const isEnabled = configManager.toggleEnabled();
                 
                 statusBar.updateStatus(isEnabled);
                 console.log(`VoiceVox toggled: ${wasEnabled} -> ${isEnabled}`);
                 
-                vscode.window.showInformationMessage(
-                    `VoiceVox notifications ${isEnabled ? 'enabled' : 'disabled'}`
-                );
+                if (isEnabled) {
+                    vscode.window.showInformationMessage(
+                        'VoiceVox notifications enabled'
+                    );
+                    
+                    // Play activation sound when enabled
+                    try {
+                        console.log('🎵 About to play EXTENSION_ACTIVATED sound...');
+                        console.log('🎵 audioManager available:', !!audioManager);
+                        await audioManager.playCompletionSound(NotificationType.EXTENSION_ACTIVATED);
+                        console.log('🎵 Extension activation sound completed successfully');
+                    } catch (error) {
+                        console.error('🎵 Failed to play activation sound:', error);
+                    }
+                } else {
+                    vscode.window.showInformationMessage(
+                        'VoiceVox notifications disabled'
+                    );
+                }
             }
         );
 
