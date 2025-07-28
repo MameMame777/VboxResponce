@@ -92,13 +92,15 @@ export class AudioManager implements vscode.Disposable {
         try {
             const assetsPath = path.join(this.extensionPath, 'assets');
             
-            // Load all task-complete files for random selection
+            // Load all task-complete files
             const taskCompleteFiles = this.getAllTaskCompleteFiles(assetsPath);
             console.log(`Preloading ${taskCompleteFiles.length} task-complete files`);
             
-            // Also preload the activation sound
-            const activationFile = 'activated-zundamon.wav';
-            const allFilesToPreload = [...taskCompleteFiles, activationFile];
+            // Also preload activation sounds for all characters
+            const characters = ['zundamon', 'metan', 'tsumugi', 'kiritan'];
+            const activationFiles = characters.map(char => `activated-${char}.wav`);
+            
+            const allFilesToPreload = [...taskCompleteFiles, ...activationFiles];
             
             let loadedCount = 0;
             for (const filename of allFilesToPreload) {
@@ -125,49 +127,16 @@ export class AudioManager implements vscode.Disposable {
     }
 
     private getAllTaskCompleteFiles(assetsPath: string): string[] {
-        try {
-            const allFiles = fs.readdirSync(assetsPath);
-            const taskCompleteFiles = allFiles.filter(file => {
-                return file.startsWith('task-complete_') && (file.endsWith('.wav') || file.endsWith('.mp3'));
-            });
-            
-            console.log(`Found ${taskCompleteFiles.length} task-complete files:`, taskCompleteFiles);
-            return taskCompleteFiles;
-        } catch (error) {
-            console.error('Failed to read assets directory:', error);
-            return [];
-        }
-    }
-
-    private getRandomTaskCompleteFile(): string {
-        const assetsPath = path.join(this.extensionPath, 'assets');
-        const taskCompleteFiles = this.getAllTaskCompleteFiles(assetsPath);
-        
-        if (taskCompleteFiles.length === 0) {
-            // Fallback to configured voice character
-            const config = this.configManager.getConfiguration();
-            return `task-complete_${config.voiceCharacter}.wav`;
-        }
-        
-        // Select random file
-        const randomIndex = Math.floor(Math.random() * taskCompleteFiles.length);
-        const selectedFile = taskCompleteFiles[randomIndex];
-        
-        console.log(`🎲 Randomly selected task-complete file: ${selectedFile} (${randomIndex + 1}/${taskCompleteFiles.length})`);
-        return selectedFile;
+        // Return all possible character files
+        const characters = ['zundamon', 'metan', 'tsumugi', 'kiritan'];
+        return characters.map(char => `task-complete_${char}.wav`);
     }
 
     async playCompletionSound(type: NotificationType = NotificationType.TASK_COMPLETE): Promise<void> {
         const config = this.configManager.getConfiguration();
         
-        if (!config.enabled) {
-            return;
-        }
-
-        // Add delay if configured
-        if (config.notificationDelay > 0) {
-            await new Promise(resolve => setTimeout(resolve, config.notificationDelay));
-        }
+        console.log(`🎵 playCompletionSound called with type: ${type}`);
+        console.log(`🎵 Voice character: ${config.voiceCharacter}, Volume: ${config.volume}`);
 
         try {
             // Play the actual audio file
@@ -179,6 +148,134 @@ export class AudioManager implements vscode.Disposable {
         }
     }
 
+    async playRandomSound(): Promise<void> {
+        try {
+            console.log('🎵 Playing random sound...');
+            const randomFiles = ['random_yukari1.wav', 'random_yukari2.wav', 'random_zundamon.wav', 'random_kiritan.wav'];
+            const selectedFile = randomFiles[Math.floor(Math.random() * randomFiles.length)];
+            console.log(`🎲 Selected random file: ${selectedFile}`);
+            
+            await this.playSpecificFile(selectedFile);
+        } catch (error) {
+            console.error('Failed to play random sound:', error);
+            throw error;
+        }
+    }
+
+    async playNightSound(): Promise<void> {
+        try {
+            console.log('🌙 Playing night sound...');
+            const nightFiles = ['atnight_yukari3.wav'];
+            const selectedFile = nightFiles[Math.floor(Math.random() * nightFiles.length)];
+            console.log(`🌙 Selected night file: ${selectedFile}`);
+            
+            await this.playSpecificFile(selectedFile);
+        } catch (error) {
+            console.error('Failed to play night sound:', error);
+            throw error;
+        }
+    }
+
+    private async playSpecificFile(filename: string): Promise<void> {
+        const config = this.configManager.getConfiguration();
+        
+        // Check if already playing to prevent concurrent playback
+        if (this.isPlaying) {
+            console.log('Audio already playing, skipping...');
+            return;
+        }
+
+        console.log(`🎵 Playing specific file: ${filename}`);
+
+        const audioData = this.audioCache.get(filename);
+
+        if (!audioData) {
+            console.log(`Audio file not in cache, loading from disk: ${filename}`);
+            return this.playSpecificFileFromDisk(filename, config);
+        }
+
+        try {
+            this.isPlaying = true;
+            const tempFilePath = path.join(this.tempDir, filename);
+            
+            // Write cached data to temp file
+            fs.writeFileSync(tempFilePath, audioData);
+            
+            // Play the audio file using PowerShell
+            await this.playAudioWithPowerShell(tempFilePath, config.volume);
+            
+            console.log(`🎵 Successfully played audio file: ${filename}`);
+            
+        } catch (error) {
+            console.error(`Failed to play audio file ${filename}:`, error);
+            throw error;
+        } finally {
+            this.isPlaying = false;
+        }
+    }
+
+    private async playSpecificFileFromDisk(filename: string, config: NotificationConfig): Promise<void> {
+        const assetsPath = path.join(this.extensionPath, 'assets');
+        const audioPath = path.join(assetsPath, filename);
+
+        if (!fs.existsSync(audioPath)) {
+            throw new Error(`Audio file not found: ${audioPath}`);
+        }
+
+        try {
+            this.isPlaying = true;
+            await this.playAudioWithPowerShell(audioPath, config.volume);
+            console.log(`🎵 Successfully played audio file from disk: ${filename}`);
+        } catch (error) {
+            console.error(`Failed to play audio file from disk ${filename}:`, error);
+            throw error;
+        } finally {
+            this.isPlaying = false;
+        }
+    }
+
+    private async playAudioWithPowerShell(audioPath: string, volume: number): Promise<void> {
+        // Use PowerShell to play audio on Windows
+        // Volume should be between 0.0 and 1.0, so use volume directly
+        const command = `Add-Type -AssemblyName presentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open([uri]"${audioPath}"); $player.Volume = ${volume}; $player.Play(); Start-Sleep -Seconds 3`;
+        
+        console.log(`Playing audio with PowerShell: ${audioPath}, Volume: ${volume}`);
+        
+        const powershell = spawn('powershell.exe', ['-Command', command], {
+            windowsHide: true
+        });
+
+        return new Promise<void>((resolve, reject) => {
+            let resolved = false;
+
+            powershell.on('close', (code: number) => {
+                if (resolved) return;
+                resolved = true;
+
+                if (code === 0) {
+                    console.log(`Audio played successfully: ${audioPath}`);
+                    resolve();
+                } else {
+                    reject(new Error(`PowerShell process exited with code ${code}`));
+                }
+            });
+
+            powershell.on('error', (error: Error) => {
+                if (resolved) return;
+                resolved = true;
+                reject(error);
+            });
+
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                if (resolved) return;
+                resolved = true;
+                powershell.kill();
+                reject(new Error('Audio playback timeout'));
+            }, 10000);
+        });
+    }
+
     private async playAudioFile(type: NotificationType, config: NotificationConfig): Promise<void> {
         // Check if already playing to prevent concurrent playback
         if (this.isPlaying) {
@@ -186,15 +283,12 @@ export class AudioManager implements vscode.Disposable {
             return;
         }
 
-        console.log(`🎵 playAudioFile called with type: ${type}, randomTaskComplete: ${config.randomTaskComplete}`);
+        console.log(`🎵 playAudioFile called with type: ${type}`);
 
-        // For TASK_COMPLETE, use random selection if enabled
+        // Get filename based on type and character
         let filename: string;
-        if (type === NotificationType.TASK_COMPLETE && config.randomTaskComplete) {
-            filename = this.getRandomTaskCompleteFile();
-            console.log(`🎯 Using random task-complete file: ${filename}`);
-        } else if (type === NotificationType.EXTENSION_ACTIVATED) {
-            filename = 'activated-zundamon.wav';
+        if (type === NotificationType.EXTENSION_ACTIVATED) {
+            filename = `activated-${config.voiceCharacter}.wav`;
             console.log(`🚀 Using extension activation sound: ${filename}`);
         } else {
             filename = `${type}_${config.voiceCharacter}.wav`;
@@ -221,9 +315,9 @@ export class AudioManager implements vscode.Disposable {
             this.lastPlayedFile = tempFilePath;
 
             // Use PowerShell to play audio on Windows
-            const command = `Add-Type -AssemblyName presentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open([uri]"${tempFilePath}"); $player.Play(); Start-Sleep -Seconds 3`;
+            const command = `Add-Type -AssemblyName presentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open([uri]"${tempFilePath}"); $player.Volume = ${config.volume}; $player.Play(); Start-Sleep -Seconds 3`;
             
-            console.log(`Playing audio from cache: ${filename}`);
+            console.log(`Playing audio from cache: ${filename}, Volume: ${config.volume}`);
             
             const powershell = spawn('powershell.exe', ['-Command', command], {
                 windowsHide: true
@@ -296,15 +390,12 @@ export class AudioManager implements vscode.Disposable {
     private async playAudioFileFromDisk(type: NotificationType, config: NotificationConfig): Promise<void> {
         const assetsPath = path.join(this.extensionPath, 'assets');
         
-        console.log(`🎵 playAudioFileFromDisk called with type: ${type}, randomTaskComplete: ${config.randomTaskComplete}`);
+        console.log(`🎵 playAudioFileFromDisk called with type: ${type}`);
         
-        // For TASK_COMPLETE, use random selection if enabled
+        // Get filename based on type and character
         let filename: string;
-        if (type === NotificationType.TASK_COMPLETE && config.randomTaskComplete) {
-            filename = this.getRandomTaskCompleteFile();
-            console.log(`🎯 Using random task-complete file (disk fallback): ${filename}`);
-        } else if (type === NotificationType.EXTENSION_ACTIVATED) {
-            filename = 'activated-zundamon.wav';
+        if (type === NotificationType.EXTENSION_ACTIVATED) {
+            filename = `activated-${config.voiceCharacter}.wav`;
             console.log(`🚀 Using extension activation sound (disk fallback): ${filename}`);
         } else {
             filename = `${type}_${config.voiceCharacter}.wav`;
@@ -321,9 +412,9 @@ export class AudioManager implements vscode.Disposable {
         this.lastPlayedFile = audioPath;
 
         // Use PowerShell to play audio on Windows
-        const command = `Add-Type -AssemblyName presentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open([uri]"${audioPath}"); $player.Play(); Start-Sleep -Seconds 3`;
+        const command = `Add-Type -AssemblyName presentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open([uri]"${audioPath}"); $player.Volume = ${config.volume}; $player.Play(); Start-Sleep -Seconds 3`;
         
-        console.log(`Playing audio from disk: ${filename}`);
+        console.log(`Playing audio from disk: ${filename}, Volume: ${config.volume}`);
         
         try {
             const powershell = spawn('powershell.exe', ['-Command', command], {
@@ -385,11 +476,7 @@ export class AudioManager implements vscode.Disposable {
         const phrase = phrases[type];
         console.log(`[Audio Placeholder] Playing: "${phrase}" with ${config.voiceCharacter} at volume ${config.volume}`);
         
-        // Show notification in VS Code as fallback
-        vscode.window.showInformationMessage(
-            `🔊 VoiceVox: "${phrase}" (${config.voiceCharacter})`,
-            { modal: false }
-        );
+        // Audio feedback only - no visual notification
     }
 
     async playLastNotification(): Promise<void> {
@@ -402,7 +489,7 @@ export class AudioManager implements vscode.Disposable {
             
             await this.playAudioFile(type, config);
         } else {
-            vscode.window.showInformationMessage('No previous notification to replay');
+            console.log('No previous notification to replay');
         }
     }
 
@@ -434,7 +521,6 @@ export class AudioManager implements vscode.Disposable {
         });
         
         console.log(`Voice character changed to: ${config.voiceCharacter}`);
-        console.log(`Random task complete enabled: ${config.randomTaskComplete}`);
     }
 
     dispose(): void {

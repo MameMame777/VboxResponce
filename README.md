@@ -1,126 +1,155 @@
-# VboxResponce
+# VoiceVox Companion
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code](https://img.shields.io/badge/VS%20Code-1.70%2B-blue.svg)](https://code.visualstudio.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-4.7%2B-blue.svg)](https://www.typescriptlang.org/)
 
-A VS Code extension that provides voice notifications for GitHub Copilot Chat completion using VoiceVox text-to-speech engine.
+A VS Code extension that provides voice companion features with VoiceVox character voices for enhanced development experience.
 
 ## 🚀 Quick Start
 
 ### Installation
 
-1. **Download**: Download the latest `.vsix` file from the [dist folder](https://github.com/MameMame777/VboxResponce/tree/master/dist)
+1. **Download**: Download the latest `.vsix` file from the releases
 2. **Install**: In VS Code, press `Ctrl+Shift+P` → "Extensions: Install from VSIX..." → Select the downloaded file
-3. **Enjoy**: The extension will automatically notify you when Copilot Chat completes!
+3. **Enjoy**: The extension will automatically start with startup greeting!
 
 ### Alternative Installation Methods
 
 ```bash
 # Command line installation
-code --install-extension VboxResponce-1.0.0.vsix
-
-# Or use the provided installer (Windows)
-./install.bat
+code --install-extension vscode-voicevox-companion-1.0.0.vsix
 ```
 
 ## Project Purpose
 
-This extension enhances the GitHub Copilot experience by providing audio feedback when Copilot Chat completes its responses. Instead of visual notifications, users receive personalized voice notifications from various Japanese voice characters.
+This extension provides a voice companion experience for VS Code users with Japanese VoiceVox characters. It offers startup greetings, random chat messages, and midnight notifications to create a more engaging development environment.
 
 ### Main Objectives
 
-- Provide audio notifications when GitHub Copilot Chat completes responses
-- Offer multiple Japanese voice characters with distinct personalities
-- Create a seamless integration between VS Code, GitHub Copilot, and VoiceVox
-- Enhance accessibility for users who prefer audio feedback
-- Improve development workflow with customizable voice settings
+- Provide startup greeting when VS Code launches
+- Offer random chat messages at configurable intervals
+- Send midnight notifications for late-night coding sessions
+- Support multiple Japanese voice characters with distinct personalities
+- Create seamless audio integration with PowerShell-based playback
+- Enhance development workflow with customizable voice settings
 
 ### Success Criteria
 
 - ✅ Successful VS Code extension integration
-- ✅ Audio caching system with <100ms response times
-- ✅ Voice notification system with 4 characters (ずんだもん, 四国めたん, 春日部つむぎ, 東北きりたん)
-- ✅ Configurable voice settings and character selection
-- ✅ Status bar integration for easy toggle
-- ✅ Pre-generated audio assets for fast playback
-- ✅ Real-time Copilot completion detection with duplicate prevention
-- ✅ Multi-layered detection system using VS Code APIs
+- ✅ Audio caching system with fast response times
+- ✅ Voice system with 4 random characters (yukari, zundamon, kiritan)
+- ✅ Configurable voice settings and timing controls
+- ✅ Pre-generated audio assets for instant playback
+- ✅ Timer-based random chat and midnight notification system
+- ✅ Manual chat trigger with keyboard shortcut
 
 ## Features
 
 - **Audio Notifications**: Audio notifications when Copilot Chat completes responses
-- **High Performance**: Memory-based audio caching for <100ms response times
-- **Smart Detection**: Multi-layered Copilot activity detection system
-- **Duplicate Prevention**: Sophisticated debouncing ensures one notification per response
-- **Random Voice Selection**: Task completion notifications randomly select from multiple voice characters
-- **Multiple Characters**: Choose from 4 different voice characters with unique personalities
-- **Customizable Settings**: Adjust voice character, volume, and notification delays
-- **Status Bar Integration**: Toggle notifications on/off with a status bar button
-- **Pre-generated Audio**: Uses pre-generated WAV files for fast playback without runtime VoiceVox dependency
-- **Character-specific Speech**: Each character has unique phrases and voice settings
+### Core Features
 
-## Supported Voice Characters
+- **🎵 Startup Greeting**: Welcome message when VS Code launches
+- **🎲 Random Chat**: Configurable interval chat messages (5-120 minutes)
+- **🌙 Midnight Notifications**: Special late-night development companion sounds
+- **⚡ High Performance**: Memory-based audio caching for instant playback
+- **🎛️ Manual Control**: Trigger random chat manually with `Ctrl+Alt+V`
+- **🔧 Customizable Settings**: Adjust voice character, volume, and chat intervals
+- **📁 Pre-generated Audio**: Uses pre-generated WAV files for fast playback
+- **🎯 Character Variety**: Multiple voice characters for diverse experience
 
-| Character | ID | Description | Voice Style |
-|-----------|----|--------------|-----------| 
-| 🟡 ずんだもん | 3 | Friendly and energetic | "なのだ" speech pattern, slightly faster speech |
-| 🔵 四国めたん | 2 | Cheerful and polite | Gentle tone with "♪" expressions |
-| 🟢 春日部つむぎ | 8 | Calm and relaxed | Slow speech with "〜" endings |
-| 🟠 東北きりたん | 108 | Natural and balanced | Standard speech patterns |
+## Audio Files & Characters
 
-## Notification Types
+### Startup Greeting
+- **activated-zundamon.wav**: ずんだもんの起動メッセージ
 
-- **completion-success**: Task completed successfully
-- **completion-error**: Error occurred during processing
-- **long-process**: Long-running process notification
-- **task-complete**: Task finished notification
+### Random Chat (4 voices)
+- **random_yukari1.wav**: 結月ゆかりのランダムチャット1
+- **random_yukari2.wav**: 結月ゆかりのランダムチャット2  
+- **random_zundamon.wav**: ずんだもんのランダムチャット
+- **random_kiritan.wav**: 東北きりたんのランダムチャット
+
+### Midnight Notifications
+- **atnight_yukari3.wav**: 結月ゆかりの深夜メッセージ
+
+## Voice Character Settings
+
+| Character | Description | Voice Style |
+|-----------|-------------|-------------|
+| 🟡 zundamon | ずんだもん - Friendly and energetic | "なのだ" speech pattern |
+| 🔵 metan | 四国めたん - Cheerful and polite | Gentle tone with cheerful expressions |
+| 🟢 tsumugi | 春日部つむぎ - Calm and relaxed | Slow speech with gentle endings |
+| 🟠 kiritan | 東北きりたん - Natural and balanced | Standard speech patterns |
+
+## Functions
+
+### 🚀 Startup Greeting
+- Automatically plays when VS Code starts
+- Uses `activated-zundamon.wav`
+- Can be enabled/disabled in settings
+
+### 🎲 Random Chat
+- Timer-based random voice messages
+- Configurable interval (5-120 minutes, default: 30 minutes)
+- Randomly selects from 4 different voice files
+- Manual trigger: `Ctrl+Alt+V`
+
+### 🌙 Midnight Notifications
+- Plays at exactly 00:00 daily
+- Special late-night development companion message
+- Uses `atnight_yukari3.wav`
 
 ## Installation & Setup
 
 ### Prerequisites
 
-1. **VoiceVox**: Download and install VoiceVox from [official website](https://voicevox.hiroshiba.jp/)
-2. **VS Code**: Visual Studio Code with GitHub Copilot extension installed
-3. **Node.js**: For development and audio asset generation
+1. **VS Code**: Visual Studio Code 1.70+
+2. **Windows**: PowerShell-based audio playback (Windows only)
+3. **Audio System**: Working audio output device
 
-### Development Setup
+### Installation Steps
 
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Start VoiceVox application (it will run on localhost:50021)
-4. Generate audio assets: `node scripts/generateAudioAssets.js`
-5. Compile TypeScript: `npm run compile`
-6. Press F5 to launch Extension Development Host
+1. Download the `.vsix` file
+2. Install via VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX..."
+3. Or use command line: `code --install-extension vscode-voicevox-companion-1.0.0.vsix`
+4. Restart VS Code to enable the extension
 
 ## Usage
 
-1. **Enable/Disable**: Click the 🔊/🔇 icon in VS Code status bar
-2. **Change Voice Character**: Go to VS Code Settings → Extensions → VboxResponce
-3. **Test Audio**: Use Command Palette → "VboxResponce: Play Test Sound"
-4. **Adjust Settings**: Configure volume, delays, and error notifications in settings
+### Basic Operation
+1. **Startup**: Extension automatically starts with VS Code
+2. **Manual Chat**: Press `Ctrl+Alt+V` to trigger random chat
+3. **Settings**: Configure via VS Code Settings → Extensions → VoiceVox Companion
+
+### Commands
+- **Random VoiceVox Chat** (`voicevoxCompanion.randomChat`): Manual random chat trigger
 
 ## Configuration Options
 
 ```json
 {
-  "VboxResponce.enabled": true,
-  "VboxResponce.voiceCharacter": "zundamon",
-  "VboxResponce.volume": 0.7,
-  "VboxResponce.notificationDelay": 500,
-  "VboxResponce.enableForErrors": true,
-  "VboxResponce.randomTaskComplete": true
+  "voicevoxCompanion.voiceCharacter": "zundamon",
+  "voicevoxCompanion.volume": 0.7,
+  "voicevoxCompanion.enableStartupGreeting": true,
+  "voicevoxCompanion.randomChatInterval": 30
 }
 ```
 
 ### Settings Explanation
 
-- `enabled`: Enable/disable audio notifications
-- `voiceCharacter`: Default voice character (zundamon, metan, tsumugi, kiritan)
+- `voiceCharacter`: Voice character for startup greeting (zundamon, metan, tsumugi, kiritan)
 - `volume`: Audio volume (0.0 - 1.0)
-- `notificationDelay`: Delay before playing notification (milliseconds)
-- `enableForErrors`: Play notifications for error states
-- `randomTaskComplete`: Use random voice characters for task completion (from all available task-complete_* files)
+- `enableStartupGreeting`: Enable/disable startup greeting when VS Code starts
+- `randomChatInterval`: Random chat interval in minutes (5-120, 0 to disable)
+
+### Available Settings
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| Voice Character | string | "zundamon" | Character for startup greeting |
+| Volume | number | 0.7 | Audio volume (0.0 to 1.0) |
+| Enable Startup Greeting | boolean | true | Play greeting when VS Code starts |
+| Random Chat Interval | number | 30 | Minutes between random chats (5-120) |
 
 ## Technical Architecture
 

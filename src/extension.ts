@@ -1,163 +1,174 @@
 import * as vscode from 'vscode';
 import { AudioManager, NotificationType } from './audioManager';
-import { CopilotMonitor } from './copilotMonitor';
 import { ConfigurationManager } from './configurationManager';
-import { StatusBarManager } from './statusBarManager';
+
+let randomChatTimer: NodeJS.Timeout | undefined;
+let midnightTimer: NodeJS.Timeout | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('VoiceVox Copilot Notifier is now active!');
-    console.log('Extension path:', context.extensionPath);
+    console.log('VoiceVox Companion is now active!');
     
-    // Also show activation message in VS Code
-    vscode.window.showInformationMessage('VoiceVox Copilot Notifier activated!');
-
     try {
         // Initialize managers
-        console.log('Initializing ConfigurationManager...');
         const configManager = new ConfigurationManager();
-        
-        console.log('Initializing AudioManager...');
         const audioManager = new AudioManager(context.extensionPath, configManager);
-        
-        console.log('Initializing StatusBarManager...');
-        const statusBar = new StatusBarManager();
-        
-        console.log('Initializing CopilotMonitor...');
-        const copilotMonitor = new CopilotMonitor(audioManager, configManager);
 
-        // Set initial status immediately
-        console.log('Setting initial status...');
-        const isEnabled = configManager.isEnabled();
-        console.log('Configuration enabled status:', isEnabled);
-        statusBar.updateStatus(isEnabled);
-
-        // Initialize components
-        Promise.all([
-            audioManager.initialize(),
-            copilotMonitor.initialize()
-        ]).then(async () => {
-            console.log('VoiceVox Copilot Notifier initialized successfully');
-            statusBar.updateStatus(configManager.isEnabled());
+        // Initialize audio manager
+        audioManager.initialize().then(async () => {
+            console.log('VoiceVox Companion initialized successfully');
             
-            // Play activation sound if enabled
-            if (configManager.isEnabled()) {
+            // Play startup greeting if enabled
+            const config = configManager.getConfiguration();
+            if (config.enableStartupGreeting) {
                 try {
-                    console.log('🎵 About to play initial EXTENSION_ACTIVATED sound...');
+                    console.log('🎵 Playing startup greeting...');
                     await audioManager.playCompletionSound(NotificationType.EXTENSION_ACTIVATED);
-                    console.log('Extension activation sound played');
+                    console.log('Startup greeting played successfully');
                 } catch (error) {
-                    console.error('Failed to play activation sound:', error);
+                    console.error('Failed to play startup greeting:', error);
                 }
             }
+
+            // Start random chat timer if enabled
+            startRandomChatTimer(configManager, audioManager);
+            
+            // Start midnight timer
+            startMidnightTimer(audioManager);
+            
         }).catch(error => {
-            console.error('Failed to initialize VoiceVox Copilot Notifier:', error);
-            vscode.window.showErrorMessage(
-                `VoiceVox Copilot Notifier initialization failed: ${error.message}`
-            );
-            statusBar.updateStatus(false);
+            console.error('Failed to initialize VoiceVox Companion:', error);
+            vscode.window.showErrorMessage(`VoiceVox Companion initialization failed: ${error.message}`);
         });
 
-        // Register commands
-        const toggleCommand = vscode.commands.registerCommand(
-            'voicevox-copilot.toggle',
-            async () => {
-                const wasEnabled = configManager.isEnabled();
-                const isEnabled = configManager.toggleEnabled();
-                
-                statusBar.updateStatus(isEnabled);
-                console.log(`VoiceVox toggled: ${wasEnabled} -> ${isEnabled}`);
-                
-                if (isEnabled) {
-                    vscode.window.showInformationMessage(
-                        'VoiceVox notifications enabled'
-                    );
-                    
-                    // Play activation sound when enabled
-                    try {
-                        console.log('🎵 About to play EXTENSION_ACTIVATED sound...');
-                        console.log('🎵 audioManager available:', !!audioManager);
-                        await audioManager.playCompletionSound(NotificationType.EXTENSION_ACTIVATED);
-                        console.log('🎵 Extension activation sound completed successfully');
-                    } catch (error) {
-                        console.error('🎵 Failed to play activation sound:', error);
-                    }
-                } else {
-                    vscode.window.showInformationMessage(
-                        'VoiceVox notifications disabled'
-                    );
-                }
-            }
-        );
-
-        const testCommand = vscode.commands.registerCommand(
-            'voicevox-copilot.playTest',
+        // Register random chat command
+        const randomChatCommand = vscode.commands.registerCommand(
+            'voicevoxCompanion.randomChat',
             async () => {
                 try {
-                    const config = configManager.getConfiguration();
-                    console.log('Current configuration for test:', config);
+                    console.log('🎵 Playing random chat...');
+                    await audioManager.playRandomSound();
                     
-                    await audioManager.playCompletionSound(NotificationType.TASK_COMPLETE);
-                    vscode.window.showInformationMessage(
-                        'Test sound played successfully'
-                    );
+                    // Show a cute message
+                    const messages = [
+                        "がんばって〜！",
+                        "お疲れ様です！",
+                        "今日も一日よろしくお願いします！",
+                        "コーディング楽しんでね〜",
+                        "休憩も大切ですよ〜"
+                    ];
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    vscode.window.showInformationMessage(`💬 ${randomMessage}`);
+                    
                 } catch (error) {
-                    console.error('Test sound error:', error);
-                    vscode.window.showErrorMessage(`Failed to play test sound: ${error}`);
+                    console.error('Failed to play random chat:', error);
+                    vscode.window.showErrorMessage('Failed to play random chat');
                 }
             }
-        );
-
-        const replayCommand = vscode.commands.registerCommand(
-            'voicevox-copilot.playLastMessage',
-            async () => {
-                try {
-                    await audioManager.playLastNotification();
-                } catch (error) {
-                    vscode.window.showErrorMessage(`Failed to replay notification: ${error}`);
-                }
-            }
-        );
-
-        // Register for disposal
-        context.subscriptions.push(
-            toggleCommand,
-            testCommand, 
-            replayCommand,
-            statusBar,
-            copilotMonitor,
-            audioManager
         );
 
         // Listen for configuration changes
         const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration('voicevox-copilot')) {
-                console.log('Configuration change detected');
-                
-                // Get old and new configurations for comparison
-                const newConfig = configManager.getConfiguration();
-                console.log('New configuration:', newConfig);
-                
+            if (e.affectsConfiguration('voicevoxCompanion')) {
+                console.log('Configuration changed, restarting timer...');
                 configManager.refresh();
-                audioManager.updateConfiguration();
-                statusBar.updateStatus(configManager.isEnabled());
                 
-                vscode.window.showInformationMessage(
-                    `VoiceVox settings updated (Voice: ${newConfig.voiceCharacter})`
-                );
+                // Restart random chat timer with new settings
+                stopRandomChatTimer();
+                startRandomChatTimer(configManager, audioManager);
             }
         });
 
-        context.subscriptions.push(configChangeListener);
+        // Register for disposal
+        context.subscriptions.push(
+            randomChatCommand,
+            configChangeListener,
+            audioManager,
+            { dispose: () => {
+                stopRandomChatTimer();
+                stopMidnightTimer();
+            }}
+        );
 
     } catch (error) {
-        console.error('Failed to activate VoiceVox Copilot Notifier:', error);
+        console.error('Failed to activate VoiceVox Companion:', error);
         const errorMessage = error instanceof Error ? error.message : String(error);
-        vscode.window.showErrorMessage(
-            `VoiceVox Copilot Notifier activation failed: ${errorMessage}`
-        );
+        vscode.window.showErrorMessage(`VoiceVox Companion activation failed: ${errorMessage}`);
+    }
+}
+
+function startRandomChatTimer(configManager: ConfigurationManager, audioManager: AudioManager) {
+    const config = configManager.getConfiguration();
+    const intervalMinutes = config.randomChatInterval;
+    
+    if (intervalMinutes <= 0) {
+        console.log('Random chat timer disabled');
+        return;
+    }
+
+    const intervalMs = intervalMinutes * 60 * 1000;
+    console.log(`Starting random chat timer: ${intervalMinutes} minutes`);
+    
+    randomChatTimer = setInterval(async () => {
+        try {
+            console.log('🎵 Timer triggered random chat...');
+            await vscode.commands.executeCommand('voicevoxCompanion.randomChat');
+        } catch (error) {
+            console.error('Timer random chat failed:', error);
+        }
+    }, intervalMs);
+}
+
+function startMidnightTimer(audioManager: AudioManager) {
+    // Calculate time until next midnight
+    const now = new Date();
+    const midnight = new Date();
+    midnight.setHours(24, 0, 0, 0); // Next midnight
+    
+    const timeUntilMidnight = midnight.getTime() - now.getTime();
+    console.log(`Time until midnight: ${Math.round(timeUntilMidnight / 1000 / 60)} minutes`);
+    
+    // Set initial timer for midnight
+    setTimeout(async () => {
+        try {
+            console.log('🌙 Midnight! Playing night sound...');
+            await audioManager.playNightSound();
+            vscode.window.showInformationMessage('🌙 おやすみなさい〜');
+            
+            // Set up recurring daily timer
+            midnightTimer = setInterval(async () => {
+                try {
+                    console.log('🌙 Daily midnight sound...');
+                    await audioManager.playNightSound();
+                    vscode.window.showInformationMessage('🌙 おやすみなさい〜');
+                } catch (error) {
+                    console.error('Midnight sound failed:', error);
+                }
+            }, 24 * 60 * 60 * 1000); // 24 hours
+            
+        } catch (error) {
+            console.error('Initial midnight sound failed:', error);
+        }
+    }, timeUntilMidnight);
+}
+
+function stopRandomChatTimer() {
+    if (randomChatTimer) {
+        clearInterval(randomChatTimer);
+        randomChatTimer = undefined;
+        console.log('Random chat timer stopped');
+    }
+}
+
+function stopMidnightTimer() {
+    if (midnightTimer) {
+        clearInterval(midnightTimer);
+        midnightTimer = undefined;
+        console.log('Midnight timer stopped');
     }
 }
 
 export function deactivate() {
-    console.log('VoiceVox Copilot Notifier deactivated');
+    console.log('VoiceVox Companion deactivated');
+    stopRandomChatTimer();
+    stopMidnightTimer();
 }

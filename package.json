@@ -1,17 +1,17 @@
 {
-  "name": "voicevox-copilot-notifier",
-  "displayName": "VoiceVox Copilot Notifier",
-  "description": "Voice notifications for GitHub Copilot Chat completion using VoiceVox",
-  "version": "1.1.0",
+  "name": "vscode-voicevox-companion",
+  "displayName": "VoiceVox Companion",
+  "description": "VoiceVox characters provide startup greetings and random chat messages",
+  "version": "1.0.0",
   "publisher": "nautilus-dev",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MameMame777/voicevox-copilot-notifier.git"
+    "url": "git+https://github.com/MameMame777/vscode-custom-audio-signals.git"
   },
   "bugs": {
-    "url": "https://github.com/MameMame777/voicevox-copilot-notifier/issues"
+    "url": "https://github.com/MameMame777/vscode-custom-audio-signals/issues"
   },
-  "homepage": "https://github.com/MameMame777/voicevox-copilot-notifier#readme",
+  "homepage": "https://github.com/MameMame777/vscode-custom-audio-signals#readme",
   "license": "MIT",
   "icon": "icon.png",
   "engines": {
@@ -22,10 +22,10 @@
   ],
   "keywords": [
     "voicevox",
-    "copilot",
-    "tts",
-    "notification",
-    "accessibility"
+    "companion",
+    "character",
+    "greeting",
+    "chat"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -34,30 +34,15 @@
   "contributes": {
     "commands": [
       {
-        "command": "voicevox-copilot.toggle",
-        "title": "Toggle Voice Notifications",
-        "category": "VoiceVox Copilot"
-      },
-      {
-        "command": "voicevox-copilot.playTest",
-        "title": "Play Test Sound",
-        "category": "VoiceVox Copilot"
-      },
-      {
-        "command": "voicevox-copilot.playLastMessage",
-        "title": "Replay Last Notification",
-        "category": "VoiceVox Copilot"
+        "command": "voicevoxCompanion.randomChat",
+        "title": "Random VoiceVox Chat",
+        "category": "VoiceVox Companion"
       }
     ],
     "configuration": {
-      "title": "VoiceVox Copilot Notifier",
+      "title": "VoiceVox Companion",
       "properties": {
-        "voicevox-copilot.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable voice notifications for Copilot Chat completion"
-        },
-        "voicevox-copilot.voiceCharacter": {
+        "voicevoxCompanion.voiceCharacter": {
           "type": "string",
           "enum": [
             "zundamon",
@@ -72,45 +57,34 @@
             "東北きりたん (Natural)"
           ],
           "default": "zundamon",
-          "description": "Voice character for notifications"
+          "description": "Voice character for companion"
         },
-        "voicevox-copilot.volume": {
+        "voicevoxCompanion.volume": {
           "type": "number",
           "default": 0.7,
           "minimum": 0.0,
           "maximum": 1.0,
           "description": "Audio volume (0.0 - 1.0)"
         },
-        "voicevox-copilot.notificationDelay": {
+        "voicevoxCompanion.enableStartupGreeting": {
+          "type": "boolean",
+          "default": true,
+          "description": "Play greeting sound when VS Code starts"
+        },
+        "voicevoxCompanion.randomChatInterval": {
           "type": "number",
-          "default": 500,
-          "minimum": 0,
-          "maximum": 5000,
-          "description": "Delay before playing notification (milliseconds)"
-        },
-        "voicevox-copilot.enableForErrors": {
-          "type": "boolean",
-          "default": true,
-          "description": "Play different sound for error completions"
-        },
-        "voicevox-copilot.randomTaskComplete": {
-          "type": "boolean",
-          "default": true,
-          "description": "Use random voice characters for task completion notifications"
-        },
-        "voicevox-copilot.filterManualEdits": {
-          "type": "boolean",
-          "default": true,
-          "description": "Filter out manual typing to avoid false positive notifications"
+          "default": 30,
+          "minimum": 5,
+          "maximum": 120,
+          "description": "Random chat interval in minutes (0 to disable)"
         }
       }
     },
     "keybindings": [
       {
-        "command": "voicevox-copilot.toggle",
+        "command": "voicevoxCompanion.randomChat",
         "key": "ctrl+alt+v",
-        "mac": "cmd+alt+v",
-        "when": "editorTextFocus"
+        "mac": "cmd+alt+v"
       }
     ]
   },
