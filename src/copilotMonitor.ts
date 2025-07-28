@@ -192,6 +192,11 @@ export class CopilotMonitor implements vscode.Disposable {
     private lastDocumentChangeTime: Map<string, number> = new Map();
     private lastActivityCheck: number = 0;
     private recentEventCount: number = 0;
+    
+    // Manual editing detection properties
+    private lastKeystrokeTime: Map<string, number> = new Map();
+    private recentChangeIntervals: Map<string, number[]> = new Map();
+    private manualEditingThreshold: number = 100; // ms - below this suggests automated input
 
     private isSettingsOrConfigFile(document: vscode.TextDocument): boolean {
         return document.uri.scheme === 'vscode-userdata' || 
@@ -199,6 +204,83 @@ export class CopilotMonitor implements vscode.Disposable {
                document.fileName.includes('keybindings.json') ||
                document.fileName.includes('tasks.json') ||
                document.fileName.includes('launch.json');
+    }
+
+    private isLikelyManualEdit(document: vscode.TextDocument, changeLength: number, changeText: string): boolean {
+        const now = Date.now();
+        const documentUri = document.uri.toString();
+        const lastTime = this.lastKeystrokeTime.get(documentUri) || 0;
+        const timeSinceLastChange = now - lastTime;
+        
+        // Update keystroke timing
+        this.lastKeystrokeTime.set(documentUri, now);
+        
+        // Track recent change intervals for pattern analysis
+        if (!this.recentChangeIntervals.has(documentUri)) {
+            this.recentChangeIntervals.set(documentUri, []);
+        }
+        
+        const intervals = this.recentChangeIntervals.get(documentUri)!;
+        if (intervals.length >= 5) {
+            intervals.shift(); // Keep only last 5 intervals
+        }
+        intervals.push(timeSinceLastChange);
+        
+        console.log(`⌨️  Manual edit analysis for ${document.fileName}:`);
+        console.log(`   - Time since last change: ${timeSinceLastChange}ms`);
+        console.log(`   - Change length: ${changeLength} characters`);
+        console.log(`   - Recent intervals: [${intervals.join(', ')}]ms`);
+        
+        // Indicators of manual editing:
+        
+        // 1. Very small changes (single characters/words) suggest typing
+        if (changeLength <= 3 && timeSinceLastChange > this.manualEditingThreshold) {
+            console.log('   ✋ Detected: Small change with human-like timing');
+            return true;
+        }
+        
+        // 2. Regular intervals between changes suggest human typing rhythm
+        if (intervals.length >= 3) {
+            const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+            const hasRegularPattern = intervals.every(interval => 
+                Math.abs(interval - avgInterval) < avgInterval * 0.5
+            );
+            
+            if (hasRegularPattern && avgInterval > this.manualEditingThreshold) {
+                console.log(`   ✋ Detected: Regular typing pattern (avg: ${avgInterval.toFixed(1)}ms)`);
+                return true;
+            }
+        }
+        
+        // 3. Check for typical manual editing patterns in text
+        const manualEditPatterns = [
+            /^[a-zA-Z]$/, // Single character
+            /^[a-zA-Z]+$/, // Single word without special formatting
+            /^[0-9]+$/, // Just numbers
+            /^\s+$/, // Only whitespace
+            /^[a-zA-Z\s]{1,10}$/, // Short phrases
+        ];
+        
+        const looksLikeTyping = manualEditPatterns.some(pattern => pattern.test(changeText.trim()));
+        if (looksLikeTyping && timeSinceLastChange > 50) {
+            console.log('   ✋ Detected: Manual typing pattern in text');
+            return true;
+        }
+        
+        // 4. Very fast changes (< 50ms) are likely automated (Copilot)
+        if (timeSinceLastChange < 50 && changeLength > 20) {
+            console.log('   🤖 Detected: Automated insertion (too fast + too large)');
+            return false;
+        }
+        
+        // 5. Large insertions happening instantly are likely Copilot
+        if (changeLength > 100 && timeSinceLastChange < this.manualEditingThreshold) {
+            console.log('   🤖 Detected: Large instant insertion (likely Copilot)');
+            return false;
+        }
+        
+        console.log('   ❓ Uncertain: Could be either manual or automated');
+        return false; // When uncertain, assume it might be Copilot to avoid missing notifications
     }
 
     private setupCopilotPanelDetection(): void {
@@ -411,12 +493,20 @@ export class CopilotMonitor implements vscode.Disposable {
             console.log(`  - Range: ${change.range.start.line}-${change.range.end.line}`);
             console.log(`  - Text preview: "${changeText.substring(0, 100)}${changeLength > 100 ? '...' : ''}"`);
             
+            // 🆕 Check if this looks like manual editing
+            const config = this.configManager.getConfiguration();
+            const isManualEdit = config.filterManualEdits && this.isLikelyManualEdit(document, changeLength, changeText);
+            if (isManualEdit) {
+                console.log('🚫 Skipping notification: Detected manual editing');
+                return;
+            }
+            
             // Detect medium to large insertions (likely Copilot completions)
             // Reduced threshold to catch more Copilot interactions
             if (changeLength > 50) { // Reduced from 200 to catch smaller completions
                 console.log(`Text insertion detected: ${changeLength} characters`);
                 if (changeLength > 150 || this.looksLikeGeneratedCode(changeText)) {
-                    console.log('ↁETriggering completion notification for code insertion');
+                    console.log('🎯 Triggering completion notification for code insertion');
                     this.scheduleCompletionNotification(NotificationType.TASK_COMPLETE, 'Code insertion');
                 }
             }
@@ -425,7 +515,7 @@ export class CopilotMonitor implements vscode.Disposable {
             const lineCount = (changeText.match(/\n/g) || []).length;
             if (lineCount > 3) { // Reduced from 10 to catch smaller multi-line completions
                 console.log(`Multi-line code block detected: ${lineCount} lines`);
-                console.log('ↁETriggering completion notification for multi-line block');
+                console.log('🎯 Triggering completion notification for multi-line block');
                 this.scheduleCompletionNotification(NotificationType.TASK_COMPLETE, 'Multi-line code block');
             }
             

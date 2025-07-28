@@ -7,6 +7,7 @@ export interface NotificationConfig {
     notificationDelay: number;
     enableForErrors: boolean;
     randomTaskComplete: boolean;
+    filterManualEdits: boolean;
 }
 
 export class ConfigurationManager {
@@ -21,7 +22,8 @@ export class ConfigurationManager {
             volume: config.get<number>('volume', 0.7),
             notificationDelay: config.get<number>('notificationDelay', 500),
             enableForErrors: config.get<boolean>('enableForErrors', true),
-            randomTaskComplete: config.get<boolean>('randomTaskComplete', true)
+            randomTaskComplete: config.get<boolean>('randomTaskComplete', true),
+            filterManualEdits: config.get<boolean>('filterManualEdits', true)
         };
     }
 

@@ -2,7 +2,7 @@
   "name": "voicevox-copilot-notifier",
   "displayName": "VoiceVox Copilot Notifier",
   "description": "Voice notifications for GitHub Copilot Chat completion using VoiceVox",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "nautilus-dev",
   "repository": {
     "type": "git",
@@ -97,6 +97,11 @@
           "type": "boolean",
           "default": true,
           "description": "Use random voice characters for task completion notifications"
+        },
+        "voicevox-copilot.filterManualEdits": {
+          "type": "boolean",
+          "default": true,
+          "description": "Filter out manual typing to avoid false positive notifications"
         }
       }
     },
