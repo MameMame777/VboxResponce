@@ -48,17 +48,6 @@ export function activate(context: vscode.ExtensionContext) {
                     console.log('🎵 Playing random chat...');
                     await audioManager.playRandomSound();
                     
-                    // Show a cute message
-                    const messages = [
-                        "がんばって〜！",
-                        "お疲れ様です！",
-                        "今日も一日よろしくお願いします！",
-                        "コーディング楽しんでね〜",
-                        "休憩も大切ですよ〜"
-                    ];
-                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-                    vscode.window.showInformationMessage(`💬 ${randomMessage}`);
-                    
                 } catch (error) {
                     console.error('Failed to play random chat:', error);
                     vscode.window.showErrorMessage('Failed to play random chat');
@@ -132,14 +121,12 @@ function startMidnightTimer(audioManager: AudioManager) {
         try {
             console.log('🌙 Midnight! Playing night sound...');
             await audioManager.playNightSound();
-            vscode.window.showInformationMessage('🌙 おやすみなさい〜');
             
             // Set up recurring daily timer
             midnightTimer = setInterval(async () => {
                 try {
                     console.log('🌙 Daily midnight sound...');
                     await audioManager.playNightSound();
-                    vscode.window.showInformationMessage('🌙 おやすみなさい〜');
                 } catch (error) {
                     console.error('Midnight sound failed:', error);
                 }
